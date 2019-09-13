@@ -70,6 +70,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
+                      Text('Registration', style: Theme.of(context).textTheme.subtitle,),
                       TextFormField(
                         onSaved: (value) {
                           setState(() => _register.name = value);
@@ -98,6 +99,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               _register.name,
                               _register.login,
                               _register.password);
+                        },
+                      ),
+                      FlatButton(
+                        child: Text('Back'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
                         },
                       ),
                     ],

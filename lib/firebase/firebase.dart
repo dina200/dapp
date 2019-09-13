@@ -1,3 +1,4 @@
+import 'package:d_app/models/time_range.dart';
 import 'package:d_app/store_iteractor.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,6 +12,11 @@ class FireBase {
 
   final _onLoginSubject = PublishSubject<void>();
   final _onRegisterSubject = PublishSubject<void>();
+  final _fetchStatisticSubject = PublishSubject<TimeRange>();
+
+  StoreInteractor get storeInteractor => _storeInteractor;
+
+  Sink<TimeRange> get fetchStatisticSink => _fetchStatisticSubject.sink;
 
   Stream<void> get onLoginStream => _onLoginSubject.stream;
 
@@ -33,7 +39,9 @@ class FireBase {
   FireBase(StoreInteractor storeInteractor)
       : _storeInteractor = storeInteractor,
         _fireBaseAuth = FirebaseAuth.instance,
-        _fireStore = Firestore.instance;
+        _fireStore = Firestore.instance{
+    _fetchStatisticSubject.listen(_handleFetchStatistic);
+  }
 
   Future<void> setName(String name) async {
     try {
@@ -49,9 +57,9 @@ class FireBase {
   Future<void> setSugarInBlood(double measure) async {
     try {
       var now = DateTime.now();
-      var milliseconds = now.millisecondsSinceEpoch.toString();
+      var milliseconds = now.millisecondsSinceEpoch;
       _fireStore.collection('users').document(_storeInteractor.token)
-        ..collection('statistica').document(milliseconds).setData({
+        ..collection('statistica').document(milliseconds.toString()).setData({
           'timeMeasure': milliseconds,
           'sugarInBlood': measure,
         });
@@ -67,6 +75,8 @@ class FireBase {
         password: password,
       );
       await _storeInteractor.setToken(authResult.user.uid);
+      await _storeInteractor.setEmail(email);
+      await _storeInteractor.setPassword(password);
       _onLoginSubject.add(null);
     } on PlatformException catch (e) {
       _onLoginSubject.addError(e.message);
@@ -109,5 +119,9 @@ class FireBase {
   dispose() {
     _onLoginSubject.close();
     _onRegisterSubject.close();
+  }
+
+  Future<void> _handleFetchStatistic(TimeRange event) {
+
   }
 }
