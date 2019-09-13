@@ -6,4 +6,7 @@ class User {
 class Statistic {
   int timeMeasure;
   double sugarInBlood;
+
+  Statistic(this.timeMeasure, this.sugarInBlood);
+
 }
