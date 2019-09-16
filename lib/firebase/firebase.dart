@@ -1,5 +1,3 @@
-import 'package:d_app/models/time_range.dart';
-import 'package:d_app/models/user.dart';
 import 'package:d_app/store_iteractor.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -51,6 +49,18 @@ class FireBase {
     }
   }
 
+  Future<void> setDocEmail(String email) async {
+    try {
+      _fireStore.collection('users').document(_storeInteractor.token)
+        ..setData({
+          'docEmail': email,
+        });
+      await _storeInteractor.setDoctorEmail(email);
+    } on PlatformException catch (e) {
+      print(e.message);
+    }
+  }
+
   Future<void> setSugarInBlood(double measure) async {
     try {
       var now = DateTime.now();
@@ -90,6 +100,7 @@ class FireBase {
       await _storeInteractor.setEmail(email);
       await _storeInteractor.setPassword(password);
       _setEmail(email);
+      setName(name);
       _onRegisterSubject.add(null);
     } on PlatformException catch (e) {
       _onRegisterSubject.addError(e.message);

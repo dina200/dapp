@@ -69,7 +69,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             widget.fireBase.storeInteractor.doctorEmail,
                         textAlign: TextAlign.center,
                         onSaved: (value) {
-                          widget.fireBase.storeInteractor.setDoctorEmail(value);
+                          widget.fireBase.setDocEmail(value);
                         },
                         decoration: InputDecoration(hintText: 'Docs Email'),
                       ),
