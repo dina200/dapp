@@ -57,58 +57,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
         onTap: () {
           FocusScope.of(context).requestFocus(focus);
         },
-        child: SafeArea(
-          child: Scaffold(
-            body: SingleChildScrollView(
-              child: Container(
-                constraints: constraints,
-                padding: EdgeInsets.all(50.0),
-                height: MediaQuery.of(context).size.height / 3,
-                alignment: Alignment.center,
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text('Registration', style: Theme.of(context).textTheme.subtitle,),
-                      TextFormField(
-                        onSaved: (value) {
-                          setState(() => _register.name = value);
-                        },
-                        decoration: InputDecoration(hintText: 'Name'),
+        child: Scaffold(
+          body: SingleChildScrollView(
+            child: Container(
+              constraints: constraints,
+              padding: EdgeInsets.all(50.0),
+              height: MediaQuery.of(context).size.height / 3,
+              alignment: Alignment.center,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text('Registration', style: Theme.of(context).textTheme.subtitle,),
+                    TextFormField(
+                      onSaved: (value) {
+                        setState(() => _register.name = value);
+                      },
+                      decoration: InputDecoration(hintText: 'Name'),
+                    ),
+                    TextFormField(
+                      onSaved: (value) {
+                        setState(() => _register.login = value);
+                      },
+                      decoration: InputDecoration(hintText: 'Email'),
+                    ),
+                    TextFormField(
+                      onSaved: (value) {
+                        setState(() => _register.password = value);
+                      },
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        hintText: 'Password',
                       ),
-                      TextFormField(
-                        onSaved: (value) {
-                          setState(() => _register.login = value);
-                        },
-                        decoration: InputDecoration(hintText: 'Email'),
-                      ),
-                      TextFormField(
-                        onSaved: (value) {
-                          setState(() => _register.password = value);
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Password',
-                        ),
-                      ),
-                      RaisedButton(
-                        child: Text('Sigh Up'),
-                        onPressed: () async {
-                          _formKey.currentState.save();
-                          await widget.fireBase.sighUp(
-                              _register.name,
-                              _register.login,
-                              _register.password);
-                        },
-                      ),
-                      FlatButton(
-                        child: Text('Back'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  ),
+                    ),
+                    RaisedButton(
+                      child: Text('Sigh Up'),
+                      onPressed: () async {
+                        _formKey.currentState.save();
+                        await widget.fireBase.sighUp(
+                            _register.name,
+                            _register.login,
+                            _register.password);
+                      },
+                    ),
+                    FlatButton(
+                      child: Text('Back'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),

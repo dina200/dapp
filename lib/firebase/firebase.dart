@@ -49,10 +49,11 @@ class FireBase {
     }
   }
 
-  Future<void> setDocEmail(String email) async {
+  Future<void> setProfData(String name, String email) async {
     try {
       _fireStore.collection('users').document(_storeInteractor.token)
         ..setData({
+          'name': name,
           'docEmail': email,
         });
       await _storeInteractor.setDoctorEmail(email);

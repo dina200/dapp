@@ -61,78 +61,76 @@ class _LoginScreenState extends State<LoginScreen> {
         onTap: () {
           FocusScope.of(context).requestFocus(_focus);
         },
-        child: SafeArea(
-          child: Scaffold(
-            body: SingleChildScrollView(
-              child: Container(
-                constraints: constraints,
-                padding: EdgeInsets.all(50.0),
-                alignment: Alignment.center,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height / 8,
-                      child: RichText(
-                        textAlign: TextAlign.center,
-                        text: TextSpan(children: [
-                          TextSpan(
-                            text: 'Dia App',
-                            style: TextStyle(
-                                color: Colors.blueAccent, fontSize: 24),
-                          ),
-                          TextSpan(
-                            text: '\nyour health under control',
-                            style: Theme.of(context).textTheme.body1,
-                          ),
-                        ]),
-                      ),
+        child: Scaffold(
+          body: SingleChildScrollView(
+            child: Container(
+              constraints: constraints,
+              padding: EdgeInsets.all(50.0),
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height / 8,
+                    child: RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(children: [
+                        TextSpan(
+                          text: 'Dia App',
+                          style: TextStyle(
+                              color: Colors.blueAccent, fontSize: 24),
+                        ),
+                        TextSpan(
+                          text: '\nyour health under control',
+                          style: Theme.of(context).textTheme.body1,
+                        ),
+                      ]),
                     ),
-                    Text(
-                      'Login',
-                      style: Theme.of(context).textTheme.subtitle,
-                    ),
-                    Form(
-                      key: _formKey,
-                      child: Column(
-                        children: <Widget>[
-                          TextFormField(
-                            initialValue: widget.fireBase.storeInteractor.email ?? '',
-                            onSaved: (value) {
-                              setState(() => _loginPayload.login = value);
-                            },
-                            decoration: InputDecoration(hintText: 'Email'),
+                  ),
+                  Text(
+                    'Login',
+                    style: Theme.of(context).textTheme.subtitle,
+                  ),
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      children: <Widget>[
+                        TextFormField(
+                          initialValue: widget.fireBase.storeInteractor.email ?? '',
+                          onSaved: (value) {
+                            setState(() => _loginPayload.login = value);
+                          },
+                          decoration: InputDecoration(hintText: 'Email'),
+                        ),
+                        TextFormField(
+                          initialValue: widget.fireBase.storeInteractor.password ?? '',
+                          obscureText: true,
+                          onSaved: (value) {
+                            setState(() => _loginPayload.password = value);
+                          },
+                          decoration: InputDecoration(
+                            hintText: 'Password',
                           ),
-                          TextFormField(
-                            initialValue: widget.fireBase.storeInteractor.password ?? '',
-                            obscureText: true,
-                            onSaved: (value) {
-                              setState(() => _loginPayload.password = value);
-                            },
-                            decoration: InputDecoration(
-                              hintText: 'Password',
-                            ),
-                          ),
-                          RaisedButton(
-                            child: Text('Sigh in'),
-                            onPressed: () {
-                              _formKey.currentState.save();
-                              widget.fireBase.sighIn(
-                                  _loginPayload.login, _loginPayload.password);
-                            },
-                          ),
-                        ],
-                      ),
+                        ),
+                        RaisedButton(
+                          child: Text('Sigh in'),
+                          onPressed: () {
+                            _formKey.currentState.save();
+                            widget.fireBase.sighIn(
+                                _loginPayload.login, _loginPayload.password);
+                          },
+                        ),
+                      ],
                     ),
-                    FlatButton(
-                      child: Text('Sigh Up'),
-                      onPressed: () {
-                        Navigator.of(context).push(
-                            RegisterScreen.buildPageRoute(widget.fireBase));
-                      },
-                    ),
-                  ],
-                ),
+                  ),
+                  FlatButton(
+                    child: Text('Sigh Up'),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                          RegisterScreen.buildPageRoute(widget.fireBase));
+                    },
+                  ),
+                ],
               ),
             ),
           ),

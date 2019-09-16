@@ -14,7 +14,8 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final _focus = FocusNode();
   final _formKey = GlobalKey<FormState>();
-  final _key = GlobalKey<FormFieldState<String>>();
+  final _keyName = GlobalKey<FormFieldState<String>>();
+  final _keyEmail = GlobalKey<FormFieldState<String>>();
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +30,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           alignment: Alignment.center,
           child: Form(
             key: _formKey,
+            onChanged:  (){
+              _formKey.currentState.save();
+            },
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
@@ -44,12 +48,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             return LinearProgressIndicator();
                           } else {
                             return TextFormField(
-                              key: _key,
-                              initialValue: snapshot.data.data['name'],
+                              key: _keyName,
+                              initialValue: snapshot.data.data['name'] ?? '',
                               textAlign: TextAlign.center,
                               onSaved: (value) {
-                                setState(
-                                    () => _key.currentState.setValue(value));
+                                _keyName.currentState.setValue(value);
                               },
                               decoration: InputDecoration(hintText: 'Name'),
                             );
@@ -64,15 +67,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Expanded(child: Text('Doc\'s email')),
                     Expanded(
                       flex: 2,
-                      child: TextFormField(
-                        initialValue:
-                            widget.fireBase.storeInteractor.doctorEmail,
-                        textAlign: TextAlign.center,
-                        onSaved: (value) {
-                          widget.fireBase.setDocEmail(value);
-                        },
-                        decoration: InputDecoration(hintText: 'Docs Email'),
-                      ),
+                      child: StreamBuilder<DocumentSnapshot>(
+                          stream: widget.fireBase.accountStream,
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) {
+                              return LinearProgressIndicator();
+                            } else {
+                              return TextFormField(
+                                key: _keyEmail,
+                                initialValue: snapshot.data.data['docEmail'] ?? '',
+                                textAlign: TextAlign.center,
+                                onSaved: (value) {
+                                  _keyEmail.currentState.setValue(value);
+                                },
+                                decoration:
+                                    InputDecoration(hintText: 'Docs Email'),
+                              );
+                            }
+                          }),
                     ),
                   ],
                 ),
@@ -89,7 +101,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Text('Ok'),
                       onPressed: () {
                         _formKey.currentState.save();
-                        widget.fireBase.setName(_key.currentState.value);
+                        widget.fireBase.setProfData(_keyName.currentState.value, _keyEmail.currentState.value);
                         Navigator.of(context).pop();
                       },
                     ),
