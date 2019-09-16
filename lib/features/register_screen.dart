@@ -38,7 +38,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   StreamSubscription<void> _onRegisterSuccessStreamSubscription() {
     return widget.fireBase.onRegisterStream.listen(
-      (_) {},
+      (_) {
+        Navigator.of(context).pop();
+      },
       onError: (error) => MyApp.onError(context, error),
     );
   }

@@ -20,8 +20,18 @@ class Statistic {
 
   Statistic(this.timeMeasure, this.sugarInBlood);
 
+  static int compareTo(Statistic s1, Statistic s2) {
+    if (s1.timeMeasure > s2.timeMeasure) {
+      return -1;
+    } else if (s1.timeMeasure < s2.timeMeasure) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+
+
   String toString() {
-    return
-    '${DateFormat('dd.MM.yyyy HH:mm').format(DateTime.fromMillisecondsSinceEpoch(timeMeasure))}, ${sugarInBlood.toStringAsFixed(1).toString()} mmol/L, diagnosis: $diagnosis';
+    return '${DateFormat('dd.MM.yyyy HH:mm').format(DateTime.fromMillisecondsSinceEpoch(timeMeasure))}, ${sugarInBlood.toStringAsFixed(1).toString()} mmol/L, diagnosis: $diagnosis';
   }
 }

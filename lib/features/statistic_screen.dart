@@ -67,7 +67,7 @@ class _StatisticScreenState extends State<StatisticScreen> {
         _statistics = list.where((e) {
           return e.timeMeasure > _timeRange.from.millisecondsSinceEpoch &&
               e.timeMeasure < _timeRange.to.millisecondsSinceEpoch;
-        }).toList();
+        }).toList()..sort(Statistic.compareTo);
         return Scaffold(
           appBar: AppBar(
             title: Text('Statistics'),
@@ -100,12 +100,12 @@ class _StatisticScreenState extends State<StatisticScreen> {
                         child: Column(
                           children: <Widget>[
                             ListTile(
-                              leading: Text(DateFormat('dd.MM.yyyy HH:mm')
+                              subtitle: Text(DateFormat('dd.MM.yyyy HH:mm')
                                   .format(DateTime.fromMillisecondsSinceEpoch(
                                       _statistics[index].timeMeasure))),
                               title: Text(
                                   '${_statistics[index].sugarInBlood.toString()} mmol/L'),
-                              trailing: Text(_statistics[index].diagnosis),
+                              trailing: Text(_statistics[index].diagnosis, style: TextStyle(fontSize: 16.0),),
                             ),
                             _divider(),
                           ],
@@ -116,17 +116,17 @@ class _StatisticScreenState extends State<StatisticScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: RaisedButton(
-                  child: Text('Sent the statistic to your doctor'),
-                  onPressed: _statistics.isNotEmpty
-                    ? () {
-                        String statisticaStr =
-                            _statistics.fold('', (prevValue, value) {
-                          return '$prevValue ${value.toString()}\n';
-                        });
-                        launch(
-                            'mailto:${widget.fireBase.storeInteractor.doctorEmail ?? ''}?subject=DiaStatistic patient: ${widget.fireBase.storeInteractor.name ?? ''}&body=$statisticaStr');
-                      }
-                    : null),
+                    child: Text('Sent the statistic to your doctor'),
+                    onPressed: _statistics.isNotEmpty
+                        ? () {
+                            String statisticaStr =
+                                _statistics.fold('', (prevValue, value) {
+                              return '$prevValue ${value.toString()}\n';
+                            });
+                            launch(
+                                'mailto:${widget.fireBase.storeInteractor.doctorEmail ?? ''}?subject=DiaStatistic patient: ${widget.fireBase.storeInteractor.name ?? ''}&body=$statisticaStr');
+                          }
+                        : null),
               ),
             ],
           ),
