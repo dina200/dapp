@@ -4,10 +4,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:d_app/firebase/firebase.dart';
 import 'package:d_app/models/time_range.dart';
 import 'package:d_app/models/user.dart';
+import 'package:d_app/store_iteractor.dart';
 import 'package:d_app/widgets/filter_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
+import 'package:url_launcher/url_launcher.dart';
 
 class StatisticScreen extends StatefulWidget {
   static PageRoute<StatisticScreen> buildPageRoute(FireBase fireBase) {
@@ -26,6 +29,8 @@ class StatisticScreen extends StatefulWidget {
   }
 
   final FireBase fireBase;
+  final StoreInteractor storeInteractor = StoreInteractor()
+    ..initSharedPreference();
 
   StatisticScreen({Key key, this.fireBase}) : super(key: key);
 
@@ -35,7 +40,7 @@ class StatisticScreen extends StatefulWidget {
 
 class _StatisticScreenState extends State<StatisticScreen> {
   TimeRange _timeRange;
-  List<Statistic> _statistic;
+  List<Statistic> _statistics;
 
   @override
   void initState() {
@@ -50,66 +55,84 @@ class _StatisticScreenState extends State<StatisticScreen> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-        stream: widget.fireBase.statisticStream,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return LinearProgressIndicator();
-          }
-          var list = snapshot.data.documents.map((e) {
-            var tm = int.tryParse(e.data['timeMeasure'].toString());
-            return Statistic(tm, e.data['sugarInBlood']);
-          }).toList();
-          _statistic = list.where((e) {
-            return e.timeMeasure > _timeRange.from.millisecondsSinceEpoch &&
-                e.timeMeasure < _timeRange.to.millisecondsSinceEpoch;
-          }).toList();
-          return Scaffold(
-            appBar: AppBar(
-              title: Text('Statistics'),
-              actions: <Widget>[
-                FilterTile(
-                  filters: _createFilters(),
-                  onSort: (range) {
-                    setState(() {
-                      _timeRange = range;
-                    });
-                  },
-                ),
-              ],
-            ),
-            body: Container(
-              child: ListView.builder(
-                  itemCount: _statistic.length,
-                  itemBuilder: (context, index) {
-                    Color color = Colors.transparent;
-                    String diagnosis = 'normal';
-                    if (_statistic[index].sugarInBlood < 4.1) {
-                      color = Colors.blue.withOpacity(0.2);
-                      diagnosis = 'hypoglycemia';
-                    } else if (_statistic[index].sugarInBlood > 5.9) {
-                      color = Colors.red.withOpacity(0.2);
-                      diagnosis = 'hyperglycemia';
-                    }
-                    return Container(
-                      color: color,
-                      child: Column(
-                        children: <Widget>[
-                          ListTile(
-                            leading: Text(DateFormat('dd.MM.yyyy HH:mm').format(
-                                DateTime.fromMillisecondsSinceEpoch(
-                                    _statistic[index].timeMeasure))),
-                            title: Text(
-                                '${_statistic[index].sugarInBlood.toString()} mmol/L'),
-                            trailing: Text(diagnosis),
-                          ),
-                          _divider(),
-                        ],
-                      ),
-                    );
-                  }),
-            ),
-          );
-        });
+      stream: widget.fireBase.statisticStream,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return LinearProgressIndicator();
+        }
+        var list = snapshot.data.documents.map((e) {
+          var tm = int.tryParse(e.data['timeMeasure'].toString());
+          return Statistic(tm, e.data['sugarInBlood']);
+        }).toList();
+        _statistics = list.where((e) {
+          return e.timeMeasure > _timeRange.from.millisecondsSinceEpoch &&
+              e.timeMeasure < _timeRange.to.millisecondsSinceEpoch;
+        }).toList();
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('Statistics'),
+            actions: <Widget>[
+              FilterTile(
+                filters: _createFilters(),
+                onSort: (range) {
+                  setState(() {
+                    _timeRange = range;
+                  });
+                },
+              ),
+            ],
+          ),
+          body: Stack(
+            alignment: Alignment.bottomRight,
+            children: <Widget>[
+              Container(
+                child: ListView.builder(
+                    itemCount: _statistics.length,
+                    itemBuilder: (context, index) {
+                      Color color = Colors.transparent;
+                      if (_statistics[index].sugarInBlood < 4.1) {
+                        color = Colors.blue.withOpacity(0.2);
+                      } else if (_statistics[index].sugarInBlood > 5.9) {
+                        color = Colors.red.withOpacity(0.2);
+                      }
+                      return Container(
+                        color: color,
+                        child: Column(
+                          children: <Widget>[
+                            ListTile(
+                              leading: Text(DateFormat('dd.MM.yyyy HH:mm')
+                                  .format(DateTime.fromMillisecondsSinceEpoch(
+                                      _statistics[index].timeMeasure))),
+                              title: Text(
+                                  '${_statistics[index].sugarInBlood.toString()} mmol/L'),
+                              trailing: Text(_statistics[index].diagnosis),
+                            ),
+                            _divider(),
+                          ],
+                        ),
+                      );
+                    }),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: RaisedButton(
+                  child: Text('Sent the statistic to your doctor'),
+                  onPressed: _statistics.isNotEmpty
+                    ? () {
+                        String statisticaStr =
+                            _statistics.fold('', (prevValue, value) {
+                          return '$prevValue ${value.toString()}\n';
+                        });
+                        launch(
+                            'mailto:${widget.fireBase.storeInteractor.doctorEmail ?? ''}?subject=DiaStatistic patient: ${widget.fireBase.storeInteractor.name ?? ''}&body=$statisticaStr');
+                      }
+                    : null),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Future<TimeRange> getTimeInterval(Filters filter) async {

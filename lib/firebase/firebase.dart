@@ -45,6 +45,7 @@ class FireBase {
         ..setData({
           'name': name,
         });
+      await _storeInteractor.setName(name);
     } on PlatformException catch (e) {
       print(e.message);
     }

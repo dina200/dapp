@@ -30,26 +30,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Form(
             key: _formKey,
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
-                Text('Change name'),
-                StreamBuilder<DocumentSnapshot>(
-                  stream: widget.fireBase.accountStream,
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return LinearProgressIndicator();
-                    } else {
-                      return TextFormField(
-                        key: _key,
-                        initialValue: snapshot.data.data['name'],
+                Row(
+                  children: <Widget>[
+                    Expanded(child: Text('User\'s name')),
+                    Expanded(
+                      flex: 2,
+                      child: StreamBuilder<DocumentSnapshot>(
+                        stream: widget.fireBase.accountStream,
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return LinearProgressIndicator();
+                          } else {
+                            return TextFormField(
+                              key: _key,
+                              initialValue: snapshot.data.data['name'],
+                              textAlign: TextAlign.center,
+                              onSaved: (value) {
+                                setState(
+                                    () => _key.currentState.setValue(value));
+                              },
+                              decoration: InputDecoration(hintText: 'Name'),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    Expanded(child: Text('Doc\'s email')),
+                    Expanded(
+                      flex: 2,
+                      child: TextFormField(
+                        initialValue:
+                            widget.fireBase.storeInteractor.doctorEmail,
                         textAlign: TextAlign.center,
                         onSaved: (value) {
-                          setState(() => _key.currentState.setValue(value));
+                          widget.fireBase.storeInteractor.setDoctorEmail(value);
                         },
-                        decoration: InputDecoration(hintText: 'Name'),
-                      );
-                    }
-                  },
+                        decoration: InputDecoration(hintText: 'Docs Email'),
+                      ),
+                    ),
+                  ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,

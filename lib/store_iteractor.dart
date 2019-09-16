@@ -2,7 +2,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 const _TOKEN = 'token';
 const _EMAIL = 'email';
+const _DOC_EMAIL = 'doc_email';
 const _PASSWORD = 'password';
+const _NAME = 'name';
 
 class StoreInteractor {
   SharedPreferences _prefs;
@@ -27,5 +29,17 @@ class StoreInteractor {
 
   Future<void> setPassword(String password) async {
     await _prefs.setString(_PASSWORD, password);
+  }
+
+  String get name => _prefs.getString(_NAME);
+
+  Future<void> setName(String name) async {
+    await _prefs.setString(_NAME, name);
+  }
+
+  String get doctorEmail => _prefs.getString(_DOC_EMAIL);
+
+  Future<void> setDoctorEmail(String doctorEmail) async {
+    await _prefs.setString(_DOC_EMAIL, doctorEmail);
   }
 }

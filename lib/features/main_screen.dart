@@ -90,7 +90,7 @@ class _MainScreenState extends State<MainScreen> {
                       child: Column(
                         children: <Widget>[
                           Text(
-                            'Enter measure "Sugar in blood"',
+                            'Enter measure "Sugar in blood" (mmol/L)',
                             style: Theme.of(context).textTheme.subtitle,
                           ),
                           TextFormField(
@@ -111,8 +111,8 @@ class _MainScreenState extends State<MainScreen> {
                                 return 'Input format "4.5"';
                               } else if (regExp.hasMatch(value)) {
                                 double v = double.parse(value);
-                                if (v > 70.0 || v < 3.0) {
-                                  return '3.0 < value < 70.0';
+                                if (v > 70.0 || v < 0.0) {
+                                  return '0.0 < value < 70.0';
                                 }
                               }
                               return null;
