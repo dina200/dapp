@@ -82,10 +82,13 @@ class FireBase {
 
   Future<void> sighUp(String name, String email, String password) async {
     try {
-      await _fireBaseAuth.createUserWithEmailAndPassword(
+      final authResult = await _fireBaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+      await _storeInteractor.setToken(authResult.user.uid);
+      await _storeInteractor.setEmail(email);
+      await _storeInteractor.setPassword(password);
       _setEmail(email);
       _onRegisterSubject.add(null);
     } on PlatformException catch (e) {
