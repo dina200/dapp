@@ -1,10 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:d_app/features/profile_modal.dart';
-import 'package:d_app/models/user.dart';
-import 'package:d_app/widgets/filter_widget.dart';
-import 'package:flutter/material.dart';
+import 'package:d_app/features/statistic_screen.dart';
 import 'package:d_app/firebase/firebase.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:flutter/material.dart';
 
 class MainScreen extends StatefulWidget {
   final FireBase fireBase;
@@ -19,31 +16,27 @@ class _MainScreenState extends State<MainScreen> {
   final _key = GlobalKey<FormFieldState<String>>();
   final _formKey = GlobalKey<FormState>();
   final _focus = FocusNode();
-
-  List<charts.Series<Statistic, int>> _seriesLineData;
-
-  var linesalesdata = [
-    Statistic(1568285740080, 2.5),
-    Statistic(1568367894667, 8.2),
-    Statistic(1568369488721, 1.2),
-  ];
-
-  @override
-  void initState() {
-    _seriesLineData = List<charts.Series<Statistic, int>>();
-    super.initState();
-  }
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   List<PopupItem> get choices => <PopupItem>[
         PopupItem(
-            title: 'User profile',
-            onTap: () {
-              showDialog(
-                  context: context,
-                  builder: (context) {
-                    return ProfileScreen(fireBase: widget.fireBase);
-                  });
-            }),
+          title: 'User profile',
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return ProfileScreen(fireBase: widget.fireBase);
+              },
+            );
+          },
+        ),
+        PopupItem(
+          title: 'Statistic',
+          onTap: () {
+            Navigator.of(context)
+                .push(StatisticScreen.buildPageRoute(widget.fireBase));
+          },
+        ),
         PopupItem(
           title: 'Quit',
           onTap: () {
@@ -61,6 +54,7 @@ class _MainScreenState extends State<MainScreen> {
         },
         child: SafeArea(
           child: Scaffold(
+            key: _scaffoldKey,
             appBar: AppBar(
               title: Text('Dia app'),
               actions: <Widget>[
@@ -79,157 +73,89 @@ class _MainScreenState extends State<MainScreen> {
                 ),
               ],
             ),
-            body: Builder(builder: (context) {
-              return SingleChildScrollView(
-                child: Container(
-                  constraints: constraints,
-                  child: Form(
-                    key: _formKey,
-                    onChanged: () {
-                      _formKey.currentState.save();
-                    },
-                    child: Column(
-                      children: <Widget>[
-                        Expanded(
-                          child: Column(
-                            children: <Widget>[
-                              Expanded(
-                                child: Container(
-                                  alignment: Alignment.bottomCenter,
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 15.0, horizontal: 50.0),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: <Widget>[
-                                      Text(
-                                        'Enter measure "Sugar in blood"',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .subtitle,
-                                      ),
-                                      TextFormField(
-                                        key: _key,
-                                        textAlign: TextAlign.center,
-                                        onSaved: (value) {
-                                          setState(() => _key.currentState
-                                              .setValue(value));
-                                        },
-                                        keyboardType: TextInputType.number,
-                                        autovalidate: true,
-                                        validator: (value) {
-                                          String pattern = r'^\d+(\.\d{1,2})?$';
-                                          RegExp regExp = RegExp(pattern);
-                                          if (value.isEmpty) {
-                                            return 'Put data...';
-                                          } else if (!regExp.hasMatch(value)) {
-                                            return 'Input format "4.5"';
-                                          } else if (regExp.hasMatch(value)) {
-                                            double v = double.parse(value);
-                                            if (v > 70.0 || v < 3.0) {
-                                              return '3.0 < value < 70.0';
-                                            }
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              RaisedButton(
-                                child: Text('Send new measure'),
-                                onPressed: () {
-                                  if (_key.currentState.validate()) {
-                                    double v = double.tryParse(
-                                        _key.currentState.value);
-                                    Scaffold.of(context).showSnackBar(SnackBar(
-                                      content: Text('The data is saved'),
-                                    ));
-                                    widget.fireBase.setSugarInBlood(v);
-                                  } else {
-                                    Scaffold.of(context).showSnackBar(SnackBar(
-                                      content: Text(
-                                        'The data isn\'t saved',
-                                        style:
-                                            TextStyle(color: Colors.redAccent),
-                                      ),
-                                    ));
-                                  }
-                                },
-                              ),
-                            ],
+            body: Container(
+              constraints: constraints,
+              alignment: Alignment.topCenter,
+              child: Form(
+                key: _formKey,
+                onChanged: () {
+                  _formKey.currentState.save();
+                },
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      alignment: Alignment.topCenter,
+                      padding: const EdgeInsets.only(
+                          top: 50, left: 50.0, right: 50.0),
+                      child: Column(
+                        children: <Widget>[
+                          Text(
+                            'Enter measure "Sugar in blood"',
+                            style: Theme.of(context).textTheme.subtitle,
                           ),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Column(
-                            children: <Widget>[
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 50, horizontal: 20),
-                                child: StreamBuilder<QuerySnapshot>(
-                                  stream: widget.fireBase.statisticStream,
-                                  builder: (context, snapshot) {
-                                    if(!snapshot.hasData){
-                                      return LinearProgressIndicator();
-                                    }
-                                    var list = snapshot.data.documents.map((e){
-                                      var tm = int.tryParse(e.data['timeMeasure'].toString());
-                                      return Statistic(tm, e.data['sugarInBlood']);
-                                    }).toList();
-                                    return Card(
-                                      child: Column(
-                                        children: <Widget>[
-                                          FilterTile(
-                                              filters: _createFilters(),
-                                              onSort: null),
-
-//                                          SizedBox(
-//                                            width: constraints.maxWidth,
-//                                            height: constraints.maxHeight / 5,
-//                                            child: charts.LineChart(
-//                                              _seriesLineData
-//                                                ..add(
-//                                                charts.Series(
-//                                                  colorFn: (__, _) => charts.ColorUtil.fromDartColor(Color(0xffff9900)),
-//                                                  id: 'Air Pollution',
-//                                                  data: list,
-//                                                  domainFn: (Statistic stat, _) =>
-//                                                  stat.timeMeasure - list[0].timeMeasure,
-//                                                  measureFn: (Statistic sales, _) => sales.sugarInBlood,
-//                                                ),
-//                                              ),
-//                                            ),
-//                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }
-                                ),
-                              ),
-                            ],
+                          TextFormField(
+                            key: _key,
+                            textAlign: TextAlign.center,
+                            onSaved: (value) {
+                              setState(
+                                  () => _key.currentState.setValue(value));
+                            },
+                            keyboardType: TextInputType.number,
+                            autovalidate: true,
+                            validator: (value) {
+                              String pattern = r'^\d+(\.\d{1,2})?$';
+                              RegExp regExp = RegExp(pattern);
+                              if (value.isEmpty) {
+                                return 'Put data...';
+                              } else if (!regExp.hasMatch(value)) {
+                                return 'Input format "4.5"';
+                              } else if (regExp.hasMatch(value)) {
+                                double v = double.parse(value);
+                                if (v > 70.0 || v < 3.0) {
+                                  return '3.0 < value < 70.0';
+                                }
+                              }
+                              return null;
+                            },
                           ),
-                        )
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+                    RaisedButton(
+                      child: Text('Send new measure'),
+                      onPressed: () {
+                        if (_key.currentState.validate()) {
+                          double v = double.tryParse(_key.currentState.value);
+                          _showInSnackBar(Text('The data is saved'));
+                          widget.fireBase.setSugarInBlood(v);
+                        } else {
+                          _showInSnackBar(Text(
+                            'The data isn\'t saved',
+                            style: TextStyle(color: Colors.redAccent),
+                          ));
+                        }
+                      },
+                    ),
+
+                    RaisedButton(
+                      child: Text('Statistics'),
+                      onPressed: () {
+                        Navigator.of(context)
+                            .push(StatisticScreen.buildPageRoute(widget.fireBase));
+                      },
+                    ),
+                  ],
                 ),
-              );
-            }),
+              ),
+            ),
           ),
         ),
       );
     });
   }
 
-  List<Filter> _createFilters() {
-    return <Filter>[
-      Filter(name: 'Today', filter: Filters.Today),
-      Filter(name: 'Last 7 days', filter: Filters.Week),
-      Filter(name: 'Last 30 days', filter: Filters.ThisMonth),
-      Filter(name: 'Year', filter: Filters.ThisYear),
-      Filter(name: 'All', filter: Filters.All),
-    ];
+  void _showInSnackBar(Text text) {
+    _scaffoldKey.currentState.showSnackBar(SnackBar(content: text));
   }
 }
 

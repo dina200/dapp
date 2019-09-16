@@ -1,3 +1,4 @@
+import 'package:d_app/res/strings.dart';
 import 'package:flutter/material.dart';
 
 import 'package:d_app/features/login_screen.dart';
@@ -25,7 +26,7 @@ class MyApp extends StatefulWidget {
           FlatButton(
             onPressed: () =>
                 Navigator.of(context).pop(),
-            child: Text('Ok'),
+            child: Text(OK),
           ),
         ],
       ),
@@ -46,7 +47,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'DiaApp',
+      title: APP_NAME,
       home: _handleWindowDisplay(),
     );
   }
@@ -55,7 +56,6 @@ class _MyAppState extends State<MyApp> {
     return StreamBuilder(
       stream: _fireBase.onAuthStateChanged,
       builder: (context, snapshot) {
-        print(snapshot.connectionState);
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             body: Center(
