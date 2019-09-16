@@ -116,17 +116,18 @@ class _StatisticScreenState extends State<StatisticScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: RaisedButton(
-                    child: Text('Sent the statistic to your doctor'),
+                  color: Colors.blue,
+                    child: Text('Sent the statistic to your doctor', style: TextStyle(color: Colors.white),),
                     onPressed: _statistics.isNotEmpty
-                        ? () {
-                            String statisticaStr =
-                                _statistics.fold('', (prevValue, value) {
-                              return '$prevValue ${value.toString()}\n';
-                            });
-                            launch(
-                                'mailto:${widget.fireBase.storeInteractor.doctorEmail ?? ''}?subject=DiaStatistic patient: ${widget.fireBase.storeInteractor.name ?? ''}&body=$statisticaStr');
-                          }
-                        : null),
+                      ? () {
+                          String statisticaStr =
+                              _statistics.fold('', (prevValue, value) {
+                            return '$prevValue ${value.toString()}\n';
+                          });
+                          launch(
+                              'mailto:${widget.fireBase.storeInteractor.doctorEmail ?? ''}?subject=DiaStatistic patient: ${widget.fireBase.storeInteractor.name ?? ''}&body=$statisticaStr');
+                        }
+                      : null),
               ),
             ],
           ),
