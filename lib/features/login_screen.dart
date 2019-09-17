@@ -123,13 +123,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
-                  FlatButton(
-                    child: Text('Sigh Up'),
-                    onPressed: () {
-                      Navigator.of(context).push(
-                          RegisterScreen.buildPageRoute(widget.fireBase));
-                    },
-                  ),
                 ],
               ),
             ),

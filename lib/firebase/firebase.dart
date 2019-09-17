@@ -56,6 +56,7 @@ class FireBase {
           'name': name,
           'docEmail': email,
         });
+      await _storeInteractor.setName(name);
       await _storeInteractor.setDoctorEmail(email);
     } on PlatformException catch (e) {
       print(e.message);

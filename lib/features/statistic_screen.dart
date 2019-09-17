@@ -136,21 +136,6 @@ class _StatisticScreenState extends State<StatisticScreen> {
     );
   }
 
-  Future<TimeRange> getTimeInterval(Filters filter) async {
-    switch (filter) {
-      case Filters.Today:
-        return TimeRange.getToday();
-      case Filters.Week:
-        return TimeRange.getWeek();
-      case Filters.ThisMonth:
-        return TimeRange.getMonth();
-      case Filters.ThisYear:
-        return TimeRange.getThisYear();
-      case Filters.All:
-        return TimeRange.getAll();
-    }
-    return null;
-  }
 
   Widget _divider() {
     return Divider(
