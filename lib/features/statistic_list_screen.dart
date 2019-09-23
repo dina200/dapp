@@ -12,18 +12,18 @@ import 'package:intl/intl.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
-class StatisticScreen extends StatefulWidget {
-  static PageRoute<StatisticScreen> buildPageRoute(FireBase fireBase) {
+class StatisticListScreen extends StatefulWidget {
+  static PageRoute<StatisticListScreen> buildPageRoute(FireBase fireBase) {
     if (Platform.isIOS) {
-      return CupertinoPageRoute<StatisticScreen>(
+      return CupertinoPageRoute<StatisticListScreen>(
           builder: (context) => _builder(context, fireBase));
     }
-    return MaterialPageRoute<StatisticScreen>(
+    return MaterialPageRoute<StatisticListScreen>(
         builder: (context) => _builder(context, fireBase));
   }
 
   static Widget _builder(BuildContext context, FireBase fireBase) {
-    return StatisticScreen(
+    return StatisticListScreen(
       fireBase: fireBase,
     );
   }
@@ -32,23 +32,19 @@ class StatisticScreen extends StatefulWidget {
   final StoreInteractor storeInteractor = StoreInteractor()
     ..initSharedPreference();
 
-  StatisticScreen({Key key, this.fireBase}) : super(key: key);
+  StatisticListScreen({Key key, this.fireBase}) : super(key: key);
 
   @override
-  _StatisticScreenState createState() => _StatisticScreenState();
+  _StatisticListScreenState createState() => _StatisticListScreenState();
 }
 
-class _StatisticScreenState extends State<StatisticScreen> {
+class _StatisticListScreenState extends State<StatisticListScreen> {
   TimeRange _timeRange;
   List<Statistic> _statistics;
 
   @override
   void initState() {
-    var now = DateTime.now();
-    _timeRange = TimeRange(
-      from: DateTime(now.year, now.month, now.day),
-      to: DateTime(now.year, now.month, now.day).add(Duration(days: 1)),
-    );
+    _timeRange = TimeRange.getToday();
     super.initState();
   }
 
@@ -87,31 +83,32 @@ class _StatisticScreenState extends State<StatisticScreen> {
             children: <Widget>[
               Container(
                 child: ListView.builder(
-                    itemCount: _statistics.length,
-                    itemBuilder: (context, index) {
-                      Color color = Colors.transparent;
-                      if (_statistics[index].sugarInBlood < 4.1) {
-                        color = Colors.blue.withOpacity(0.2);
-                      } else if (_statistics[index].sugarInBlood > 5.9) {
-                        color = Colors.red.withOpacity(0.2);
-                      }
-                      return Container(
-                        color: color,
-                        child: Column(
-                          children: <Widget>[
-                            ListTile(
-                              subtitle: Text(DateFormat('dd.MM.yyyy HH:mm')
-                                  .format(DateTime.fromMillisecondsSinceEpoch(
-                                      _statistics[index].timeMeasure))),
-                              title: Text(
-                                  '${_statistics[index].sugarInBlood.toString()} mmol/L'),
-                              trailing: Text(_statistics[index].diagnosis, style: TextStyle(fontSize: 16.0),),
-                            ),
-                            _divider(),
-                          ],
-                        ),
-                      );
-                    }),
+                  itemCount: _statistics.length,
+                  itemBuilder: (context, index) {
+                    Color color = Colors.transparent;
+                    if (_statistics[index].sugarInBlood < 4.1) {
+                      color = Colors.blue.withOpacity(0.2);
+                    } else if (_statistics[index].sugarInBlood > 5.9) {
+                      color = Colors.red.withOpacity(0.2);
+                    }
+                    return Container(
+                      color: color,
+                      child: Column(
+                        children: <Widget>[
+                          ListTile(
+                            subtitle: Text(DateFormat('dd.MM.yyyy HH:mm')
+                                .format(DateTime.fromMillisecondsSinceEpoch(
+                                    _statistics[index].timeMeasure))),
+                            title: Text(
+                                '${_statistics[index].sugarInBlood.toString()} mmol/L'),
+                            trailing: Text(_statistics[index].diagnosis, style: TextStyle(fontSize: 16.0),),
+                          ),
+                          _divider(),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -135,7 +132,6 @@ class _StatisticScreenState extends State<StatisticScreen> {
       },
     );
   }
-
 
   Widget _divider() {
     return Divider(

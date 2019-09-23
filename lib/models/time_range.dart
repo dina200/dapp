@@ -22,8 +22,8 @@ class TimeRange {
       end: DateTime(
         dateTime.year,
         dateTime.month,
-        dateTime.day + 1,
-      ),
+        dateTime.day,
+      ).add(Duration(days: 1)),
     );
   }
 

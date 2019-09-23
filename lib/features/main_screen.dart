@@ -1,5 +1,6 @@
+import 'package:d_app/features/diagnosis_screen.dart';
 import 'package:d_app/features/profile_modal.dart';
-import 'package:d_app/features/statistic_screen.dart';
+import 'package:d_app/features/statistic_list_screen.dart';
 import 'package:d_app/firebase/firebase.dart';
 import 'package:flutter/material.dart';
 
@@ -34,7 +35,7 @@ class _MainScreenState extends State<MainScreen> {
           title: 'Statistic',
           onTap: () {
             Navigator.of(context)
-                .push(StatisticScreen.buildPageRoute(widget.fireBase));
+                .push(StatisticListScreen.buildPageRoute(widget.fireBase));
           },
         ),
         PopupItem(
@@ -138,10 +139,10 @@ class _MainScreenState extends State<MainScreen> {
                     ),
 
                     RaisedButton(
-                      child: Text('Statistics'),
+                      child: Text('Diagnosis'),
                       onPressed: () {
                         Navigator.of(context)
-                            .push(StatisticScreen.buildPageRoute(widget.fireBase));
+                            .push(DiagnosisScreen.buildPageRoute(widget.fireBase));
                       },
                     ),
                   ],

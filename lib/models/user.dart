@@ -17,6 +17,7 @@ class Statistic {
     }
     return 'normal';
   }
+  DateTime get date =>  DateTime.fromMillisecondsSinceEpoch(timeMeasure);
 
   Statistic(this.timeMeasure, this.sugarInBlood);
 
