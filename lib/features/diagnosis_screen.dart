@@ -73,7 +73,7 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
             measureFn: (Statistic statistic, _) => statistic.sugarInBlood,
           ),
         );
-        double _avarageValue = _statistics.fold(0, (acum, v){
+        double _averageValue = _statistics.fold(0, (acum, v){
           return acum + v.sugarInBlood;
         }) / _statistics.length;
         double _min = _statistics.fold(null, (acum, v){
@@ -117,8 +117,8 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      Text('Your blood indicator for last 7 days: ${_avarageValue.toStringAsFixed(1)} mmol/L.\n Your diagnosis: ${diagnosis(_avarageValue)}', textAlign: TextAlign.center, style: TextStyle(fontSize: 18),),
-                      diagnosis(_avarageValue)== 'normal'
+                      Text('Your blood indicator for last 7 days: ${_averageValue.toStringAsFixed(1)} mmol/L.\n Your diagnosis: ${diagnosis(_averageValue)}', textAlign: TextAlign.center, style: TextStyle(fontSize: 18),),
+                      diagnosis(_averageValue)== 'normal'
                         ? SizedBox()
                         : Padding(
                           padding: EdgeInsets.only(top: 30),
@@ -141,5 +141,17 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
       return 'hyperglycemia';
     }
     return 'normal';
+  }
+
+  Map<int, List<double>> _getStatisticByDays(){
+    Map<int, List<double>> map = {};
+    var tmpDay;
+    var tmpValue;
+    _statistics.fold({}, (map, data){
+      if(data.date.day != tmpDay){
+        tmpDay = data.date.day;
+        tmpValue =  data.sugarInBlood;
+      }
+    });
   }
 }
