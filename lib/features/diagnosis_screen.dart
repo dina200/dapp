@@ -97,7 +97,7 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
             title: Text('Diagnosis'),
           ),
           body: Container(
-            child: Column(
+            child: _getStatisticByDays().isNotEmpty ? Column(
               children: <Widget>[
                 _getStatisticByDays().length == 1 ? Padding(padding: EdgeInsets.only(top: 16.0), child: Text(DateFormat('dd MMM yyyy').format(_getStatisticByDays().first.date)),) : SizedBox(),
                 Expanded(
@@ -114,7 +114,7 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       Text('Your blood indicator for last 7 days: ${_averageValue.toStringAsFixed(1)} mmol/L.\n Your diagnosis: ${diagnosis(_averageValue)}', textAlign: TextAlign.center, style: TextStyle(fontSize: 18),),
-                      diagnosis(_averageValue) == 'normal'
+                      diagnosis(_averageValue) == 'normal' ||  diagnosis(_averageValue) == 'no data'
                         ? SizedBox()
                         : Padding(
                           padding: EdgeInsets.only(top: 30),
@@ -123,7 +123,7 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
                   ),
                 )),
               ],
-            ),
+            ) : Center(child: Text('No data'),),
           ),
         );
       },
@@ -132,7 +132,7 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
 
   String diagnosis(double sugarInBlood) {
     if(sugarInBlood == 0) {
-      return 'No data';
+      return 'no data';
     }
     if (sugarInBlood < 4.1) {
       return 'hypoglycemia';
