@@ -9,6 +9,7 @@ import 'package:d_app/firebase/firebase.dart';
 import 'package:d_app/models/time_range.dart';
 import 'package:d_app/models/user.dart';
 import 'package:d_app/store_iteractor.dart';
+import 'package:intl/intl.dart';
 
 class DiagnosisScreen extends StatefulWidget {
   static PageRoute<DiagnosisScreen> buildPageRoute(FireBase fireBase) {
@@ -68,8 +69,11 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
           charts.Series(
             colorFn: (__, _) => charts.ColorUtil.fromDartColor(Colors.blueAccent),
             id: 'DiaStat',
-            data: _statistics,
-            domainFn: (Statistic statistic, _) => statistic.date.day - _statistics.first.date.day,
+            data: _getStatisticByDays(),
+            domainFn: (Statistic statistic, _) => (statistic.timeMeasure -
+                DateTime(
+                    _statistics.first.date.year, _statistics.first.date.month,
+                    _statistics.first.date.day).millisecondsSinceEpoch) ~/ 86400000,
             measureFn: (Statistic statistic, _) => statistic.sugarInBlood,
           ),
         );
@@ -143,15 +147,23 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
     return 'normal';
   }
 
-  Map<int, List<double>> _getStatisticByDays(){
-    Map<int, List<double>> map = {};
-    var tmpDay;
-    var tmpValue;
-    _statistics.fold({}, (map, data){
-      if(data.date.day != tmpDay){
-        tmpDay = data.date.day;
-        tmpValue =  data.sugarInBlood;
+  List<Statistic> _getStatisticByDays(){
+    Map<int, double> statisticMap  = _statistics.fold<Map<int, double>>({}, (map, data){
+      var date = DateTime(data.date.year, data.date.month, data.date.day);
+      var key = date.millisecondsSinceEpoch;
+      if (map.containsKey(key)){
+        double v = map[key];
+        map[key] = (v + data.sugarInBlood) / 2;
+      } else {
+        map[key] = data.sugarInBlood;
       }
+        return map;
     });
+    List<Statistic> list = [];
+    statisticMap.forEach((k, e){
+      list.add(Statistic(k, e));
+    });
+    print(list);
+    return list;
   }
 }
