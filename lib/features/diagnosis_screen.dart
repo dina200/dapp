@@ -9,6 +9,7 @@ import 'package:d_app/firebase/firebase.dart';
 import 'package:d_app/models/time_range.dart';
 import 'package:d_app/models/user.dart';
 import 'package:d_app/store_iteractor.dart';
+import 'package:intl/intl.dart';
 
 class DiagnosisScreen extends StatefulWidget {
   static PageRoute<DiagnosisScreen> buildPageRoute(FireBase fireBase) {
@@ -42,7 +43,7 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
 
   @override
   void initState() {
-    _timeRange = TimeRange.getMonth();
+    _timeRange = TimeRange.getWeek();
     super.initState();
   }
 
@@ -98,19 +99,11 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
           body: Container(
             child: Column(
               children: <Widget>[
+                _getStatisticByDays().length == 1 ? Padding(padding: EdgeInsets.only(top: 16.0), child: Text(DateFormat('dd MMM yyyy').format(_getStatisticByDays().first.date)),) : SizedBox(),
                 Expanded(
                   child: charts.TimeSeriesChart(
                     _seriesLineData,
-                    dateTimeFactory: charts.LocalDateTimeFactory(),
-
-//                    domainAxis: charts.DateTimeAxisSpec(
-//                      tickFormatterSpec: charts.AutoDateTimeTickFormatterSpec(
-//                        day: charts.TimeFormatterSpec(
-//                          format: 'dd',
-//                          transitionFormat: 'dd MMM',
-//                        ),
-//                      ),
-//                    ),
+                    dateTimeFactory: charts.UTCDateTimeFactory(),
                   ),
                 ),
                 Text('Min: $_min\t\t\tMax: $_max'),
