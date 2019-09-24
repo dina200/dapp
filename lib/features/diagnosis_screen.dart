@@ -9,7 +9,6 @@ import 'package:d_app/firebase/firebase.dart';
 import 'package:d_app/models/time_range.dart';
 import 'package:d_app/models/user.dart';
 import 'package:d_app/store_iteractor.dart';
-import 'package:intl/intl.dart';
 
 class DiagnosisScreen extends StatefulWidget {
   static PageRoute<DiagnosisScreen> buildPageRoute(FireBase fireBase) {
@@ -43,7 +42,7 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
 
   @override
   void initState() {
-    _timeRange = TimeRange.getWeek();
+    _timeRange = TimeRange.getMonth();
     super.initState();
   }
 
@@ -64,28 +63,28 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
               e.timeMeasure < _timeRange.to.millisecondsSinceEpoch;
 
         }).toList();
-        List<charts.Series<Statistic, int>> _seriesLineData = List<charts.Series<Statistic, int>>();
-        _seriesLineData.add(
-          charts.Series(
+        List<charts.Series<Statistic, DateTime>> _seriesLineData = [
+          charts.Series<Statistic, DateTime>(
             colorFn: (__, _) => charts.ColorUtil.fromDartColor(Colors.blueAccent),
             id: 'DiaStat',
             data: _getStatisticByDays(),
-            domainFn: (Statistic statistic, _) => (statistic.timeMeasure -
-                DateTime(
-                    _statistics.first.date.year, _statistics.first.date.month,
-                    _statistics.first.date.day).millisecondsSinceEpoch) ~/ 86400000,
-            measureFn: (Statistic statistic, _) => statistic.sugarInBlood,
-          ),
-        );
+            domainFn: (Statistic statistic, _) => statistic.date,
+//            domainFn: (Statistic statistic, _) => (statistic.timeMeasure -
+//                DateTime(
+//                    _statistics.first.date.year, _statistics.first.date.month,
+//                    _statistics.first.date.day).millisecondsSinceEpoch) ~/ 86400000,
+            measureFn: (Statistic statistic, _) => statistic.sugarInBlood),
+          ];
         double _averageValue = _statistics.fold(0, (acum, v){
           return acum + v.sugarInBlood;
-        }) / _statistics.length;
+        });
+        _averageValue = _averageValue != 0.0 ? _averageValue/ _statistics.length : 0;
         double _min = _statistics.fold(null, (acum, v){
           if(acum == null || v.sugarInBlood < acum) {
             acum = v.sugarInBlood;
           }
         return acum;
-        });
+        }) ?? 0;
         double _max = _statistics.fold(0, (acum, v){
           if(v.sugarInBlood > acum) {
             acum = v.sugarInBlood;
@@ -100,18 +99,18 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
             child: Column(
               children: <Widget>[
                 Expanded(
-                  child: charts.LineChart(
-                      _seriesLineData,
-                      defaultRenderer: charts.LineRendererConfig(
-                          includeArea: true, stacked: true),
-                      behaviors: [
-                          charts.ChartTitle('Last 7 Days',
-                            behaviorPosition: charts.BehaviorPosition.bottom,
-                            titleOutsideJustification:charts.OutsideJustification.middleDrawArea),
-                          charts.ChartTitle('Sugar in Blood (mmol/L)',
-                            behaviorPosition: charts.BehaviorPosition.start,
-                            titleOutsideJustification: charts.OutsideJustification.middleDrawArea),
-                      ]
+                  child: charts.TimeSeriesChart(
+                    _seriesLineData,
+                    dateTimeFactory: charts.LocalDateTimeFactory(),
+
+//                    domainAxis: charts.DateTimeAxisSpec(
+//                      tickFormatterSpec: charts.AutoDateTimeTickFormatterSpec(
+//                        day: charts.TimeFormatterSpec(
+//                          format: 'dd',
+//                          transitionFormat: 'dd MMM',
+//                        ),
+//                      ),
+//                    ),
                   ),
                 ),
                 Text('Min: $_min\t\t\tMax: $_max'),
@@ -122,7 +121,7 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       Text('Your blood indicator for last 7 days: ${_averageValue.toStringAsFixed(1)} mmol/L.\n Your diagnosis: ${diagnosis(_averageValue)}', textAlign: TextAlign.center, style: TextStyle(fontSize: 18),),
-                      diagnosis(_averageValue)== 'normal'
+                      diagnosis(_averageValue) == 'normal'
                         ? SizedBox()
                         : Padding(
                           padding: EdgeInsets.only(top: 30),
@@ -139,6 +138,9 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
   }
 
   String diagnosis(double sugarInBlood) {
+    if(sugarInBlood == 0) {
+      return 'No data';
+    }
     if (sugarInBlood < 4.1) {
       return 'hypoglycemia';
     } else if (sugarInBlood > 5.9) {
@@ -163,7 +165,6 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
     statisticMap.forEach((k, e){
       list.add(Statistic(k, e));
     });
-    print(list);
     return list;
   }
 }
